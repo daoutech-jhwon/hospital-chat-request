@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-차치업무 도우미 챗봇 - 웹 서버
+삼성서울병원 중앙간호사 도우미 - 웹 서버
 Python 기본 HTTP 서버를 사용한 웹 애플리케이션
 """
 
@@ -218,7 +218,7 @@ class HospitalChatbotServer:
             self.server = HTTPServer(server_address, ChatbotRequestHandler)
             
             print("=" * 60)
-            print("🏥 차치업무 도우미 챗봇 서버")
+            print("🏥 삼성서울병원 중앙간호사 도우미 서버")
             print("=" * 60)
             print(f"📍 서버 주소: http://{self.host}:{self.port}")
             print(f"🚀 서버가 시작되었습니다...")
@@ -255,7 +255,7 @@ def main():
     """메인 실행 함수"""
     import argparse
     
-    parser = argparse.ArgumentParser(description='차치업무 도우미 챗봇 서버')
+    parser = argparse.ArgumentParser(description='삼성서울병원 중앙간호사 도우미 서버')
     parser.add_argument('--host', default='localhost', help='서버 호스트 (기본값: localhost)')
     parser.add_argument('--port', type=int, default=8000, help='서버 포트 (기본값: 8000)')
     

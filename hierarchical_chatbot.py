@@ -24,7 +24,7 @@ class HierarchicalHospitalChatbot:
             "subcategory_key": None,  # 선택된 세부항목 키
             "sub_item_key": None      # 선택된 세부항목2 키
         }
-        print("🏥 계층적 차치업무 도우미 챗봇이 시작되었습니다!")
+        print("🏥 삼성서울병원 중앙간호사 도우미 챗봇이 시작되었습니다!")
     
     def process_message(self, user_input):
         """
@@ -165,8 +165,8 @@ class HierarchicalHospitalChatbot:
         """메인 카테고리 목록 표시"""
         self._reset_navigation()
         
-        message = "🏥 **차치업무 카테고리 선택**\n\n"
-        message += "원하는 업무 카테고리를 선택해주세요:\n\n"
+        message = "🏥 **병동 간호업무 카테고리 선택**\n\n"
+        message += "원하는 간호업무 카테고리를 선택해주세요:\n\n"
         
         buttons = []
         for i, (category_name, category_data) in enumerate(HIERARCHICAL_WORK_DATA.items(), 1):
@@ -188,9 +188,9 @@ class HierarchicalHospitalChatbot:
         
         category_data = HIERARCHICAL_WORK_DATA[category_name]
         
-        message = f"📁 **{category_name}** 세부항목\n\n"
+        message = f"📁 **{category_name}** 세부간호업무\n\n"
         message += f"{category_data['description']}\n\n"
-        message += "세부항목을 선택해주세요:\n\n"
+        message += "세부간호업무를 선택해주세요:\n\n"
         
         buttons = []
         for i, (subcat_key, subcat_data) in enumerate(category_data["subcategories"].items(), 1):
@@ -216,9 +216,9 @@ class HierarchicalHospitalChatbot:
         category_data = HIERARCHICAL_WORK_DATA[category_name]
         subcat_data = category_data["subcategories"][subcategory_key]
         
-        message = f"📄 **{subcat_data['name']}** 상세항목\n\n"
+        message = f"📄 **{subcat_data['name']}** 상세절차\n\n"
         message += f"{subcat_data['description']}\n\n"
-        message += "상세항목을 선택해주세요:\n\n"
+        message += "상세절차를 선택해주세요:\n\n"
         
         buttons = []
         for i, (item_key, item_data) in enumerate(subcat_data["sub_items"].items(), 1):
@@ -457,17 +457,17 @@ class HierarchicalHospitalChatbot:
     def get_help_message(self):
         """도움말 메시지 반환"""
         help_text = """
-🏥 계층적 차치업무 도우미 챗봇 사용법
+🏥 삼성서울병원 중앙간호사 도우미 사용법
 
 📋 주요 기능:
-• 3단계 계층 네비게이션: 항목 → 세부항목 → 세부항목2
-• 자유텍스트 검색: 2글자 이상 입력으로 관련 정보 검색
+• 3단계 계층 네비게이션: 간호업무 → 세부업무 → 상세절차
+• 자유텍스트 검색: 2글자 이상 입력으로 관련 간호업무 검색
 • 실시간 버튼 네비게이션: 단계별 선택 버튼 제공
 
 🎯 사용 방법:
-1. 메인 카테고리 선택 (수리, 물품, 제제약/수액 등)
-2. 세부항목 선택 (의료기기, 일반적인 수리 업무 등)
-3. 최종 항목 선택하여 상세 정보 확인
+1. 간호업무 카테고리 선택 (수리, 물품, 제제약/수액 등)
+2. 세부간호업무 선택 (의료기기, 일반적인 수리 업무 등)
+3. 상세절차 선택하여 최종 정보 확인
 
 💬 네비게이션 명령어:
 • "메인", "처음", "홈" - 메인 카테고리로 이동
