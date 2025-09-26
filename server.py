@@ -9,7 +9,7 @@ import json
 import urllib.parse
 import uuid
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from chatbot import SimpleHospitalChatbot
+from hierarchical_chatbot import HierarchicalHospitalChatbot
 
 class ChatbotRequestHandler(BaseHTTPRequestHandler):
     """챗봇 웹 서버 요청 처리 클래스"""
@@ -26,11 +26,13 @@ class ChatbotRequestHandler(BaseHTTPRequestHandler):
         """GET 요청 처리 (HTML 페이지 및 정적 파일 서빙)"""
         try:
             if self.path == '/' or self.path == '/index.html':
-                self._serve_file('templates/index.html', 'text/html')
+                self._serve_file('templates/hierarchical_index.html', 'text/html')
             elif self.path == '/static/style.css':
                 self._serve_file('static/style.css', 'text/css')
             elif self.path == '/static/script.js':
                 self._serve_file('static/script.js', 'application/javascript')
+            elif self.path == '/help':
+                self._handle_help_request()
             elif self.path == '/favicon.ico':
                 # favicon 요청 무시
                 self.send_response(204)
@@ -61,7 +63,7 @@ class ChatbotRequestHandler(BaseHTTPRequestHandler):
         # 세션 ID가 없거나 유효하지 않으면 새로 생성
         if not session_id or session_id not in self.user_sessions:
             session_id = str(uuid.uuid4())
-            self.user_sessions[session_id] = SimpleHospitalChatbot()
+            self.user_sessions[session_id] = HierarchicalHospitalChatbot()
             print(f"새 사용자 세션 생성: {session_id[:8]}...")
         
         return session_id, self.user_sessions[session_id]
@@ -113,7 +115,7 @@ class ChatbotRequestHandler(BaseHTTPRequestHandler):
         """도움말 요청 처리"""
         try:
             # 임시 챗봇 인스턴스로 도움말 생성
-            temp_chatbot = SimpleHospitalChatbot()
+            temp_chatbot = HierarchicalHospitalChatbot()
             help_response = temp_chatbot.get_help_message()
             self._send_json_response(help_response)
         except Exception as e:

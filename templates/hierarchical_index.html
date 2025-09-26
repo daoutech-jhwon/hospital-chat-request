@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>계층적 차치업무 도우미 챗봇</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        /* 동적 버튼 스타일 */
+        .dynamic-btn {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 4px;
+            min-width: 120px;
+            box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+        }
+        
+        .dynamic-btn:hover {
+            background: linear-gradient(135deg, #357abd 0%, #2a5a8a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+        }
+        
+        .nav-btn {
+            background: #6c757d;
+            color: white;
+            font-size: 11px;
+            min-width: 80px;
+        }
+        
+        .nav-btn:hover {
+            background: #5a6268;
+        }
+        
+        .category-btn {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .category-btn:hover {
+            background: linear-gradient(135deg, #1e7e34 0%, #155724 100%);
+        }
+        
+        .result-btn {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+        
+        .result-btn:hover {
+            background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%);
+        }
+        
+        #dynamicButtons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 4px;
+            max-height: 80px;
+            overflow-y: auto;
+        }
+        
+        /* 입력 영역 최적화 */
+        .input-area {
+            padding: 10px 15px;
+            background: white;
+            border-top: 1px solid #e1e8ed;
+            flex-shrink: 0;
+        }
+        
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .input-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #messageInput {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        
+        #messageInput:focus {
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+        }
+        
+        .send-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .send-btn:hover {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+            transform: translateY(-1px);
+        }
+        
+        .current-time {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .header-info {
+            text-align: right;
+        }
+        
+        /* 모달 스타일 개선 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .close {
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s ease;
+        }
+        
+        .close:hover {
+            opacity: 1;
+        }
+        
+        .modal-body {
+            padding: 20px;
+            line-height: 1.6;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .help-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .help-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 채팅 컨테이너 개선 */
+        .chat-container {
+            width: 420px;
+            height: 700px;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* 채팅 메시지 영역 확대 */
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            min-height: 450px; /* 최소 높이 증가 */
+        }
+        
+        /* 빠른 버튼 영역 축소 */
+        .quick-buttons {
+            padding: 6px 10px;
+            background: white;
+            border-top: 1px solid #e1e8ed;
+            max-height: 100px; /* 더 작게 */
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        
+        /* 동적 버튼 스타일 개선 */
+        .dynamic-btn {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 1px;
+            min-width: 85px;
+            box-shadow: 0 1px 3px rgba(74, 144, 226, 0.3);
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <!-- 헤더 -->
+        <div class="chat-header">
+            <div class="hospital-info">
+                <h1>🏥 계층적 차치업무 도우미</h1>
+                <p>항목 → 세부항목 → 세부항목2 단계별 네비게이션</p>
+            </div>
+            <div class="header-info">
+                <div class="current-time" id="currentTime"></div>
+                <button class="help-btn" onclick="getHelp()">❓ 도움말</button>
+            </div>
+        </div>
+
+        <!-- 채팅 영역 -->
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot-message">
+                <div class="message-content">
+                    <div class="bot-avatar">🤖</div>
+                    <div class="message-text">
+                        <p>안녕하세요! 계층적 차치업무 도우미입니다.</p>
+                        <p>아래 버튼을 클릭하거나 메시지를 입력해주세요!</p>
+                    </div>
+                </div>
+                <div class="message-time" id="initialTime"></div>
+            </div>
+        </div>
+
+        <!-- 빠른 버튼 영역 -->
+        <div class="quick-buttons" id="quickButtons">
+            <!-- 동적 버튼 컨테이너 -->
+            <div id="dynamicButtons">
+                <!-- 서버 응답에 따라 동적으로 생성되는 버튼들 -->
+            </div>
+        </div>
+
+        <!-- 입력 영역 -->
+        <div class="input-area">
+            <div class="input-container">
+                <textarea 
+                    id="messageInput" 
+                    placeholder="메시지를 입력하세요..." 
+                    rows="1"
+                    maxlength="500"
+                    onkeypress="handleKeyPress(event)"
+                    oninput="updateCharCount(this)"
+                ></textarea>
+                <div class="input-actions">
+                    <span class="char-count" id="charCount">0/500</span>
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                        전송 ➤
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 타이핑 인디케이터 -->
+        <div class="typing-indicator" id="typingIndicator" style="display: none;">
+            <div class="typing-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+            <span>답변을 생성 중입니다...</span>
+        </div>
+    </div>
+
+    <!-- 모달 창들 -->
+    <!-- 도움말 모달 -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>도움말</h2>
+                <span class="close" onclick="closeHelpModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="helpContent">
+                <!-- 도움말 내용이 여기에 로드됩니다 -->
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // 전역 변수
+        let messageCount = 0;
+        let isTyping = false;
+        let sessionId = null;
+        
+        // DOM 요소
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const dynamicButtons = document.getElementById('dynamicButtons');
+
+        /**
+         * 메시지 전송
+         */
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message || isTyping) return;
+
+            // 사용자 메시지 표시
+            addMessage(message, 'user');
+            messageInput.value = '';
+            updateCharCount(messageInput);
+            
+            // 동적 버튼 임시 숨김
+            updateDynamicButtons([]);
+            
+            // 타이핑 인디케이터 표시
+            showTypingIndicator();
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        session_id: sessionId
+                    })
+                });
+
+                const data = await response.json();
+                
+                // 세션 ID 저장
+                if (data.session_id) {
+                    sessionId = data.session_id;
+                }
+
+                // 타이핑 인디케이터 숨김
+                hideTypingIndicator();
+
+                // 봇 응답 표시
+                addMessage(data.message, 'bot', data.category);
+                
+                // 동적 버튼 업데이트
+                if (data.buttons) {
+                    updateDynamicButtons(data.buttons);
+                }
+                
+            } catch (error) {
+                hideTypingIndicator();
+                addMessage('죄송합니다. 오류가 발생했습니다. 다시 시도해주세요.', 'bot', '오류');
+                console.error('Error:', error);
+            }
+        }
+
+        /**
+         * 빠른 메시지 전송
+         */
+        function sendQuickMessage(message) {
+            messageInput.value = message;
+            sendMessage();
+        }
+
+        /**
+         * 동적 버튼 업데이트
+         */
+        function updateDynamicButtons(buttons) {
+            dynamicButtons.innerHTML = '';
+            
+            if (!buttons || buttons.length === 0) {
+                return;
+            }
+            
+            buttons.forEach(button => {
+                const btnElement = document.createElement('button');
+                btnElement.className = 'dynamic-btn';
+                
+                // 버튼 타입에 따른 스타일 적용
+                if (button.action === 'category') {
+                    btnElement.classList.add('category-btn');
+                } else if (button.action === 'nav') {
+                    btnElement.classList.add('nav-btn');
+                } else if (button.action === 'direct_result') {
+                    btnElement.classList.add('result-btn');
+                }
+                
+                btnElement.textContent = button.text;
+                btnElement.onclick = () => sendQuickMessage(button.text);
+                
+                dynamicButtons.appendChild(btnElement);
+            });
+        }
+
+        /**
+         * 현재 시간 업데이트
+         */
+        function updateCurrentTime() {
+            const now = new Date();
+            const timeString = now.toLocaleString('ko-KR', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                weekday: 'short'
+            });
+            
+            document.getElementById('currentTime').textContent = timeString;
+        }
+
+        /**
+         * 메시지 추가
+         */
+        function addMessage(text, sender, category = '', priority = 'normal') {
+            messageCount++;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.id = `message-${messageCount}`;
+            
+            if (priority === 'high') {
+                messageDiv.classList.add('priority-high');
+            }
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            
+            if (sender === 'bot') {
+                messageContent.innerHTML = `
+                    <div class="bot-avatar">🤖</div>
+                    <div class="message-text">
+                        ${formatMessage(text)}
+                        ${category ? `<div class="message-category">${category}</div>` : ''}
+                    </div>
+                `;
+            } else {
+                messageContent.innerHTML = `
+                    <div class="message-text">${formatMessage(text)}</div>
+                    <div class="user-avatar">👤</div>
+                `;
+            }
+            
+            const messageTime = document.createElement('div');
+            messageTime.className = 'message-time';
+            messageTime.textContent = new Date().toLocaleTimeString('ko-KR');
+            
+            messageDiv.appendChild(messageContent);
+            messageDiv.appendChild(messageTime);
+            chatMessages.appendChild(messageDiv);
+            
+            // 자동 스크롤
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        /**
+         * 메시지 포맷팅
+         */
+        function formatMessage(text) {
+            return text
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/📞\s*(.*?)(?=\n|$)/g, '<div class="contact-info">📞 $1</div>')
+                .replace(/🔍\s*(.*?)(?=\n|$)/g, '<div class="search-info">🔍 $1</div>');
+        }
+
+        /**
+         * 타이핑 인디케이터 표시/숨김
+         */
+        function showTypingIndicator() {
+            isTyping = true;
+            typingIndicator.style.display = 'flex';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            isTyping = false;
+            typingIndicator.style.display = 'none';
+        }
+
+        /**
+         * 키 입력 처리
+         */
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        /**
+         * 글자 수 업데이트
+         */
+        function updateCharCount(textarea) {
+            const charCount = document.getElementById('charCount');
+            charCount.textContent = `${textarea.value.length}/500`;
+            
+            if (textarea.value.length > 450) {
+                charCount.style.color = '#dc3545';
+            } else {
+                charCount.style.color = '#6c757d';
+            }
+            
+            // 텍스트에리어 높이 자동 조절
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        }
+
+        /**
+         * 도움말
+         */
+        async function getHelp() {
+            try {
+                console.log('도움말 요청 시작...');
+                const response = await fetch('/help');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('도움말 응답:', data);
+                
+                if (data && data.message) {
+                    document.getElementById('helpContent').innerHTML = formatMessage(data.message);
+                    document.getElementById('helpModal').style.display = 'block';
+                } else {
+                    throw new Error('도움말 데이터가 올바르지 않습니다.');
+                }
+            } catch (error) {
+                console.error('도움말 오류:', error);
+                alert(`도움말을 불러오는 중 오류가 발생했습니다: ${error.message}`);
+            }
+        }
+
+        function closeHelpModal() {
+            document.getElementById('helpModal').style.display = 'none';
+        }
+
+
+        /**
+         * 초기화
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            // 초기 시간 설정 및 1분마다 업데이트
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 60000); // 1분마다 업데이트
+            
+            // 초기 시간 설정
+            document.getElementById('initialTime').textContent = new Date().toLocaleTimeString('ko-KR');
+            
+            // 입력 필드에 포커스
+            setTimeout(() => {
+                messageInput.focus();
+            }, 100);
+            
+            // 모달 외부 클릭 시 닫기
+            window.onclick = function(event) {
+                const helpModal = document.getElementById('helpModal');
+                
+                if (event.target === helpModal) {
+                    helpModal.style.display = 'none';
+                }
+            }
+            
+            // 초기 메인 카테고리 로드
+            loadMainCategories();
+        });
+
+        /**
+         * 초기 메인 카테고리 로드
+         */
+        async function loadMainCategories() {
+            try {
+                // 메인 메뉴 요청
+                sendQuickMessage('메인');
+            } catch (error) {
+                console.error('초기 카테고리 로드 오류:', error);
+            }
+        }
+    </script>
+</body>
+</html>

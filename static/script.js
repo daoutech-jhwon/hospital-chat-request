@@ -7,6 +7,7 @@
 let messageCount = 0;
 let isTyping = false;
 let sessionId = null;
+let currentNavigationLevel = 0;
 
 // DOM 요소 참조
 const messageInput = document.getElementById('messageInput');
@@ -99,6 +100,9 @@ async function sendMessage() {
         
         // 봇 응답 표시
         addMessage(data.message, 'bot', data.category, data.priority);
+        
+        // 네비게이션 버튼 상태 업데이트
+        updateNavigationButtons(data.category);
         
     } catch (error) {
         console.error('메시지 전송 오류:', error);
@@ -462,6 +466,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupAccessibility();
     adjustForMobile();
     requestNotificationPermission();
+    setupSearchInput();
     
     // 입력 필드에 포커스
     setTimeout(() => {
@@ -507,6 +512,185 @@ if ('performance' in window) {
     });
 }
 
+/**
+ * 네비게이션 버튼 상태 업데이트
+ */
+function updateNavigationButtons(category) {
+    const mainButtons = document.getElementById('mainButtons');
+    const navigationButtons = document.getElementById('navigationButtons');
+    
+    // 메인 메뉴 관련 카테고리인지 확인
+    const navigationCategories = [
+        '메인메뉴', '세부항목', '항목목록', '상세', '검색결과',
+        '수리_세부항목', '물품_세부항목', '멸균품거즈_세부항목', '격리실_세부항목'
+    ];
+    
+    if (navigationCategories.some(navCat => category && category.includes(navCat))) {
+        // 네비게이션이 필요한 상태
+        mainButtons.style.display = 'none';
+        navigationButtons.style.display = 'flex';
+        currentNavigationLevel = 1;
+    } else if (category === '인사' || category === '기본') {
+        // 메인 버튼 표시
+        mainButtons.style.display = 'flex';
+        navigationButtons.style.display = 'none';
+        currentNavigationLevel = 0;
+    }
+}
+
+/**
+ * 검색 입력 영역 표시
+ */
+function showSearchInput() {
+    const searchContainer = document.getElementById('searchContainer');
+    const navigationButtons = document.getElementById('navigationButtons');
+    const searchInput = document.getElementById('searchInput');
+    
+    searchContainer.style.display = 'flex';
+    navigationButtons.style.display = 'none';
+    searchInput.focus();
+}
+
+/**
+ * 검색 입력 영역 숨기기
+ */
+function hideSearchInput() {
+    const searchContainer = document.getElementById('searchContainer');
+    const navigationButtons = document.getElementById('navigationButtons');
+    const searchInput = document.getElementById('searchInput');
+    
+    searchContainer.style.display = 'none';
+    navigationButtons.style.display = 'flex';
+    searchInput.value = '';
+}
+
+/**
+ * 검색 수행
+ */
+function performSearch() {
+    const searchInput = document.getElementById('searchInput');
+    const searchText = searchInput.value.trim();
+    
+    if (searchText.length < 2) {
+        alert('2글자 이상 입력해주세요.');
+        return;
+    }
+    
+    // 검색어로 메시지 전송
+    sendQuickMessage(searchText);
+    hideSearchInput();
+}
+
+/**
+ * 메인 메뉴로 돌아가기
+ */
+function goToMainMenu() {
+    sendQuickMessage('메인');
+}
+
+/**
+ * 뒤로 가기
+ */
+function goBack() {
+    sendQuickMessage('뒤로');
+}
+
+/**
+ * 검색 입력 Enter 키 처리
+ */
+function setupSearchInput() {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+            if (e.key === 'Escape') {
+                hideSearchInput();
+            }
+        });
+    }
+}
+
+/**
+ * 동적 버튼 생성 (서버 응답에 따라)
+ */
+function createDynamicButtons(responseText) {
+    // 응답에서 선택 가능한 옵션들을 추출하여 버튼 생성
+    const quickButtons = document.getElementById('quickButtons');
+    
+    // 기존 동적 버튼 제거
+    const existingDynamic = quickButtons.querySelector('.dynamic-buttons');
+    if (existingDynamic) {
+        existingDynamic.remove();
+    }
+    
+    // 응답에서 "•" 로 시작하는 옵션들 찾기
+    const options = responseText.match(/• ([^:]+)/g);
+    
+    if (options && options.length > 0) {
+        const dynamicButtonGroup = document.createElement('div');
+        dynamicButtonGroup.className = 'button-group dynamic-buttons';
+        
+        options.slice(0, 4).forEach(option => {
+            const cleanOption = option.replace('• ', '').trim();
+            const button = document.createElement('button');
+            button.className = 'quick-btn dynamic-btn';
+            button.textContent = cleanOption;
+            button.onclick = () => sendQuickMessage(cleanOption);
+            dynamicButtonGroup.appendChild(button);
+        });
+        
+        quickButtons.appendChild(dynamicButtonGroup);
+    }
+}
+
+/**
+ * 메시지 추가 (오버라이드)
+ */
+function addMessage(text, sender, category = '', priority = 'NORMAL') {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}-message`;
+    
+    // 메시지 ID 생성
+    const messageId = `msg-${++messageCount}`;
+    messageDiv.id = messageId;
+    
+    // 응급 메시지 스타일 적용
+    const isEmergency = priority === 'HIGH' || category === '응급상황';
+    
+    const currentTime = getCurrentTime();
+    const avatar = sender === 'user' ? '👤' : '🤖';
+    
+    messageDiv.innerHTML = `
+        <div class="message-avatar">${avatar}</div>
+        <div class="message-content">
+            <div class="message-text ${isEmergency ? 'emergency-message' : ''}">
+                ${formatMessage(text)}
+            </div>
+            <div class="message-time">
+                ${currentTime}
+                ${category && sender === 'bot' ? ` • ${category}` : ''}
+            </div>
+        </div>
+    `;
+    
+    chatMessages.appendChild(messageDiv);
+    scrollToBottom();
+    
+    // 응급 메시지 시 특별 효과
+    if (isEmergency) {
+        playEmergencyAlert();
+    }
+    
+    // 봇 메시지인 경우 동적 버튼 생성 시도
+    if (sender === 'bot') {
+        createDynamicButtons(text);
+    }
+    
+    return messageDiv;
+}
+
 // 전역 함수로 export (HTML에서 사용)
 window.sendMessage = sendMessage;
 window.sendQuickMessage = sendQuickMessage;
@@ -515,3 +699,8 @@ window.closeModal = closeModal;
 window.closeHelpModal = closeHelpModal;
 window.getCurrentTime = getCurrentTime;
 window.updateCharCount = updateCharCount;
+window.showSearchInput = showSearchInput;
+window.hideSearchInput = hideSearchInput;
+window.performSearch = performSearch;
+window.goToMainMenu = goToMainMenu;
+window.goBack = goBack;
