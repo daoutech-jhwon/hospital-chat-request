@@ -153,20 +153,34 @@ function addMessage(text, sender, category = '', priority = 'NORMAL') {
     const isEmergency = priority === 'HIGH' || category === '응급상황';
     
     const currentTime = getCurrentTime();
-    const avatar = sender === 'user' ? '👤' : '🤖';
+    const avatar = sender === 'user' ? '👩‍⚕️' : '🤖';
     
-    messageDiv.innerHTML = `
-        <div class="message-avatar">${avatar}</div>
-        <div class="message-content">
-            <div class="message-text ${isEmergency ? 'emergency-message' : ''}">
-                ${formatMessage(text)}
+    if (sender === 'user') {
+        messageDiv.innerHTML = `
+            <div class="message-content">
+                <div class="message-text ${isEmergency ? 'emergency-message' : ''}">
+                    ${formatMessage(text)}
+                </div>
+                <div class="message-time">
+                    ${currentTime}
+                    ${category && sender === 'bot' ? ` • ${category}` : ''}
+                </div>
             </div>
-            <div class="message-time">
-                ${currentTime}
-                ${category && sender === 'bot' ? ` • ${category}` : ''}
+        `;
+    } else {
+        messageDiv.innerHTML = `
+            <div class="message-avatar">${avatar}</div>
+            <div class="message-content">
+                <div class="message-text ${isEmergency ? 'emergency-message' : ''}">
+                    ${formatMessage(text)}
+                </div>
+                <div class="message-time">
+                    ${currentTime}
+                    ${category && sender === 'bot' ? ` • ${category}` : ''}
+                </div>
             </div>
-        </div>
-    `;
+        `;
+    }
     
     chatMessages.appendChild(messageDiv);
     scrollToBottom();
@@ -660,20 +674,34 @@ function addMessage(text, sender, category = '', priority = 'NORMAL') {
     const isEmergency = priority === 'HIGH' || category === '응급상황';
     
     const currentTime = getCurrentTime();
-    const avatar = sender === 'user' ? '👤' : '🤖';
+    const avatar = sender === 'user' ? '👩‍⚕️' : '🤖';
     
-    messageDiv.innerHTML = `
-        <div class="message-avatar">${avatar}</div>
-        <div class="message-content">
-            <div class="message-text ${isEmergency ? 'emergency-message' : ''}">
-                ${formatMessage(text)}
+    if (sender === 'user') {
+        messageDiv.innerHTML = `
+            <div class="message-content">
+                <div class="message-text ${isEmergency ? 'emergency-message' : ''}">
+                    ${formatMessage(text)}
+                </div>
+                <div class="message-time">
+                    ${currentTime}
+                    ${category && sender === 'bot' ? ` • ${category}` : ''}
+                </div>
             </div>
-            <div class="message-time">
-                ${currentTime}
-                ${category && sender === 'bot' ? ` • ${category}` : ''}
+        `;
+    } else {
+        messageDiv.innerHTML = `
+            <div class="message-avatar">${avatar}</div>
+            <div class="message-content">
+                <div class="message-text ${isEmergency ? 'emergency-message' : ''}">
+                    ${formatMessage(text)}
+                </div>
+                <div class="message-time">
+                    ${currentTime}
+                    ${category && sender === 'bot' ? ` • ${category}` : ''}
+                </div>
             </div>
-        </div>
-    `;
+        `;
+    }
     
     chatMessages.appendChild(messageDiv);
     scrollToBottom();

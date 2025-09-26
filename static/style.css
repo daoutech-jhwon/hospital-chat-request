@@ -126,6 +126,11 @@ body {
 
 .user-message {
     flex-direction: row-reverse;
+    align-items: flex-end;
+}
+
+.user-message .message-content {
+    align-items: flex-end;
 }
 
 .bot-message {
@@ -139,18 +144,22 @@ body {
 }
 
 .message-content {
-    max-width: 75%;
+    max-width: 80%;
+    min-width: 120px;
     display: flex;
     flex-direction: column;
+    width: fit-content;
 }
 
 .message-text {
-    padding: 15px 18px;
-    border-radius: 20px;
+    padding: 10px 14px;
+    border-radius: 18px;
     font-size: 14px;
-    line-height: 1.5;
+    line-height: 1.4;
     word-wrap: break-word;
     position: relative;
+    width: fit-content;
+    display: inline-block;
 }
 
 .user-message .message-text {
