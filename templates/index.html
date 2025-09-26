@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏥 병원 간호사 도우미 챗봇</title>
+    <title>🏥 차치업무 도우미 챗봇</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -11,8 +11,8 @@
         <!-- 헤더 영역 -->
         <header class="chat-header">
             <div class="header-content">
-                <h1>🏥 병원 간호사 도우미</h1>
-                <p>업무 관련 문의사항을 입력해주세요</p>
+                <h1>🏥 차치업무 도우미</h1>
+                <p>차치업무 관련 문의사항을 입력해주세요</p>
                 <div class="status-indicator">
                     <span class="status-dot"></span>
                     <span class="status-text">온라인</span>
@@ -26,7 +26,7 @@
                 <div class="message-avatar">🤖</div>
                 <div class="message-content">
                     <div class="message-text">
-                        안녕하세요! 병원 간호사 도우미입니다. 무엇을 도와드릴까요?
+                        안녕하세요! 차치업무 도우미입니다. 무엇을 도와드릴까요?
                     </div>
                     <div class="message-time" id="welcomeTime"></div>
                 </div>
@@ -35,23 +35,23 @@
         
         <!-- 빠른 버튼 영역 -->
         <div class="quick-buttons" id="quickButtons">
-            <button class="quick-btn" onclick="sendQuickMessage('수리 물품 문의')">
-                🔧 수리물품
+            <button class="quick-btn" onclick="sendQuickMessage('의료기기 수리')">
+                🔧 수리
             </button>
-            <button class="quick-btn" onclick="sendQuickMessage('의약품 문의')">
-                💊 의약품
+            <button class="quick-btn" onclick="sendQuickMessage('물품 구매형태 조회')">
+                📦 물품
             </button>
-            <button class="quick-btn" onclick="sendQuickMessage('재무 문의')">
-                💰 재무총무
+            <button class="quick-btn" onclick="sendQuickMessage('제제약 수액')">
+                💊 제제약/수액
             </button>
-            <button class="quick-btn" onclick="sendQuickMessage('업무 일정')">
-                📋 업무지휘
+            <button class="quick-btn" onclick="sendQuickMessage('거즈 공급')">
+                🧽 멸균품/거즈
             </button>
-            <button class="quick-btn" onclick="sendQuickMessage('ICU 현황')">
-                🏥 ICU
+            <button class="quick-btn" onclick="sendQuickMessage('ICU 전동')">
+                🏥 ICU전동
             </button>
-            <button class="quick-btn" onclick="sendQuickMessage('연락처 전체')">
-                📞 연락처
+            <button class="quick-btn" onclick="sendQuickMessage('격리실')">
+                🦠 격리실
             </button>
         </div>
         
@@ -116,20 +116,23 @@
                 <div class="help-content">
                     <h4>🏥 주요 기능</h4>
                     <ul>
-                        <li><strong>수리물품:</strong> 장비 수리, 고장 문의</li>
-                        <li><strong>의약품:</strong> 처방, 투약 관련 문의</li>
-                        <li><strong>재무총무:</strong> 예산, 구매, 계약 문의</li>
-                        <li><strong>업무지휘:</strong> 일정, 회의, 보고 관련</li>
-                        <li><strong>ICU:</strong> 중환자실 관련 문의</li>
-                        <li><strong>전송백업:</strong> 파일, 데이터 관련</li>
+                        <li><strong>수리:</strong> 의료기기 수리 요청 (DARWIN 시스템)</li>
+                        <li><strong>물품:</strong> 물품 구매형태 조회, 청구</li>
+                        <li><strong>제제약/수액:</strong> 소독제, 수액 관련 문의</li>
+                        <li><strong>멸균품/거즈:</strong> 거즈 공급, 멸균품 청구</li>
+                        <li><strong>격리실:</strong> VRE, CPE, 음압격리 운영</li>
+                        <li><strong>ICU전동:</strong> ICU 전동 절차 안내</li>
+                        <li><strong>임종실:</strong> 임종실 입실기준</li>
+                        <li><strong>신규백업:</strong> 신규 백업 업무 안내</li>
                     </ul>
                     
                     <h4>💬 사용 예시</h4>
                     <ul>
-                        <li>"장비가 고장났어요"</li>
-                        <li>"약물 투약 시간 알려주세요"</li>
-                        <li>"회의 일정 확인해주세요"</li>
-                        <li>"연락처 알려주세요"</li>
+                        <li>"EKG 수리 요청"</li>
+                        <li>"거즈 공급 언제 되나요?"</li>
+                        <li>"VRE 격리실 절차"</li>
+                        <li>"의공기술실 연락처"</li>
+                        <li>"ICU 전동 방법"</li>
                     </ul>
                     
                     <h4>🆘 응급상황</h4>
@@ -155,7 +158,7 @@
             // 문자 수 카운터 초기화
             updateCharCount();
             
-            console.log('🏥 병원 간호사 도우미 챗봇이 준비되었습니다!');
+            console.log('🏥 차치업무 도우미 챗봇이 준비되었습니다!');
         });
     </script>
 </body>
